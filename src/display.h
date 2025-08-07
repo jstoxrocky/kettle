@@ -1,6 +1,9 @@
 #pragma once
-#include <Arduino.h>
+#include <ShiftRegister74HC595.h>
 
-// Declare your function(s)
-void displayTwoDigits(uint8_t leftDigit, uint8_t rightDigit);
-void displayNumber(uint8_t number); // optional
+struct DisplayBytes {
+  uint8_t left;
+  uint8_t right;
+};
+
+DisplayBytes numberToBytes(uint8_t number);
