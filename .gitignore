@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# PlatformIO build files
+.pio/
+.pioenvs/
+.pio/libdeps/
+.pio/build/
+
+# VSCode settings (optional — keep if you want team-wide settings)
+.vscode/
+
+# Arduino backups
+*.bak
+*.orig
+*.dmp
+
+# Object and binary files
+*.o
+*.elf
+*.bin
+*.hex
+
+# Logs
+*.log
+
+# Core dumps
+core.*
