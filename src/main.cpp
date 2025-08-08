@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <ShiftRegister74HC595.h>
-#include "display.h"
+#include <RotaryEncoder.h>
+#include "shift_registry.h"
 #include "rotary_encoder.h"
-#include "effects.h"
 
 // Shift register pins
 #define PIN_SR_DATA 11
@@ -10,42 +10,43 @@
 #define PIN_SR_LATCH 6
 
 // Rotary encoder pins
-#define ENCODER_CLK 2
-#define ENCODER_DT 3
+#define PIN_ENC_CLOCK 2
+#define PIN_ENC_DATA 3
 
-// Create shift register object
 ShiftRegister74HC595<2> sr(PIN_SR_DATA, PIN_SR_CLOCK, PIN_SR_LATCH);
 
-// Keep encoder state locally
-EncoderState encoder;
+// Choose latch mode to match your encoder detents.
+// Try FOUR3 first; if counts feel doubled/halved, try FOUR0 or TWO03.
+// Swap pin order if direction is backwards.
+RotaryEncoder enc(PIN_ENC_DATA, PIN_ENC_CLOCK, RotaryEncoder::LatchMode::FOUR3);
 
-void setup() {
-  pinMode(ENCODER_CLK, INPUT);
-  pinMode(ENCODER_DT, INPUT);
+void setup()
+{
+  pinMode(PIN_ENC_CLOCK, INPUT_PULLUP);
+  pinMode(PIN_ENC_DATA, INPUT_PULLUP);
 
-  int minValue = 0;
-  int maxValue = 99;
-  int initialValue = 0;
-
-  // Initialize the encoder state
-  encoder = initEncoder(ENCODER_CLK, ENCODER_DT, initialValue, minValue, maxValue);
-  DisplayBytes bytes = numberToBytes(encoder.counter);
-  
-  // Side effects
-  // 1. Display the updated number on the 7-segment display
-  uint8_t arr[2] = { bytes.left, bytes.right };
-  sr.setAll(arr);
+  useEncoderSetPosition(enc, 0);
+  useShiftRegistryDisplayBytes(sr, numberToBytes(0));
 }
 
+void loop()
+{
+  // Get encoder position and clamp to 0-99
+  int rawPos = clampPosition(useEncoderGetPosition(enc), 0, 99);
+  int pos = clampPosition(rawPos, 0, 99);
+  if (pos != rawPos)
+  {
+    useEncoderSetPosition(enc, pos);
+  }
 
+  // Update display if position changed
+  static int lastShown = -1;
+  if (pos != lastShown)
+  {
+    useShiftRegistryDisplayBytes(sr, numberToBytes(pos));
+    lastShown = pos;
+  }
 
-void loop() {
-  // Update the encoder state
-  encoder = updateEncoder(encoder);
-  DisplayBytes bytes = numberToBytes(encoder.counter);
-
-  // Side effects
-  // 1. Display the updated number on the 7-segment display
-  displayBytes(sr, bytes);
-  delay(2);
+  // Keep loop snappy so we don't miss steps
+  delay(1);
 }

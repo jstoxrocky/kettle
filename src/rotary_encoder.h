@@ -1,14 +1,12 @@
 #pragma once
-#include <Arduino.h>
+#include <RotaryEncoder.h>
 
-struct EncoderState {
-  uint8_t clkPin;
-  uint8_t dtPin;
-  int lastClk;
-  int counter;
-  int min;
-  int max;
-};
+// Pure function to clamp a position to a range
+int clampPosition(int rawPos, int minVal, int maxVal);
 
-EncoderState initEncoder(uint8_t clkPin, uint8_t dtPin, int initialValue, int minValue, int maxValue);
-EncoderState updateEncoder(EncoderState state);
+// Encoder side-effects
+// 1) Tick the encoder (read pins) and return the current position snapshot
+int useEncoderGetPosition(RotaryEncoder& enc);
+
+// 2) Write a bounded/normalized position back into the encoder
+void useEncoderSetPosition(RotaryEncoder& enc, int pos);
