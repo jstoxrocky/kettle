@@ -32,7 +32,7 @@ void setup()
 void loop()
 {
   // Get encoder position and clamp to 0-99
-  int rawPos = clampPosition(useEncoderGetPosition(enc), 0, 99);
+  int rawPos = useEncoderGetPosition(enc);
   int pos = clampPosition(rawPos, 0, 99);
   if (pos != rawPos)
   {
